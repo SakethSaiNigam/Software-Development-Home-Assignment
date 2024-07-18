@@ -15,6 +15,7 @@ def FetchData(url):
 def ParseDate(datestring):
     return datetime.strptime(datestring, DATE_PATTERN)
 
+# Function to Calculate the gap in days between two dates
 def JobGaps(lastdate, firstdate):
     Last = ParseDate(lastdate)
     First = ParseDate(firstdate)
@@ -34,12 +35,14 @@ def ProcessCandidate(CandidateProfile):
     CandidateJobDetails = []
     PreviousStartDate = None
     
+    # Iterate over each job experience in the candidate's profile
     for JobDetails in CandidateExperiences:
         JobRole = JobDetails.get("title")
         JobStartDate = JobDetails.get("start_date")
         JobEndDate = JobDetails.get("end_date")
         JobLocation = JobDetails.get("location", {}).get("short_display_address")
-
+        
+        # Create a dictionary to store the job information
         if JobRole and JobStartDate and JobEndDate and JobLocation:
             JobInformation = {
                 "role": JobRole,
@@ -47,7 +50,8 @@ def ProcessCandidate(CandidateProfile):
                 "end_date": JobEndDate,
                 "location": JobLocation
             }
-
+            
+            # Calculate gap if there is a previous job
             if PreviousStartDate and JobEndDate:
                 JobGapDays = JobGaps(JobEndDate, PreviousStartDate)
                 if JobGapDays > 1:
@@ -72,12 +76,14 @@ def GeneratingOutputString(CandidateProfileString):
     OutputString += "\n----------------------------------------\n"
     return OutputString
 
+# Save the formatted output to a text file
 def SaveOutputData(DataOutput, text_filename='PythonCodeOutput.txt'):
     with open(text_filename, 'w') as f:
         for CandidateProfileString in DataOutput:
             f.write(GeneratingOutputString(CandidateProfileString))
             print(GeneratingOutputString(CandidateProfileString))
 
+# Main Script
 def main():
     FullCandidatesInformation = FetchData(URL_LINK)
     ProcessedCandidates = [ProcessCandidate(CandidateProfile) for CandidateProfile in FullCandidatesInformation]
